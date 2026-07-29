@@ -27,3 +27,7 @@ Need fast lookup while iterating once.
 Time: O(n)
 
 Space: O(n)
+
+## Reflection
+
+My first instinct was to search the array for the complement using indexOf(). That works, but it results in O(n²) time because each lookup scans the array. Using a Hash Map trades O(n) extra space for O(n) time by allowing constant-time lookups.
