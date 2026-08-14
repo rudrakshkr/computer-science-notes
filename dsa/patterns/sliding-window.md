@@ -75,6 +75,67 @@ Move `L` forward and remove elements until the duplicate is gone:
 
 The window is valid again, so continue expanding `R`.
 
+---
+
+## 🎯 Required Frequency Window
+
+Some Sliding Window problems require the window to contain specific elements with specific frequencies.
+
+Use two frequency maps:
+
+- `tCount` → required frequencies
+- `windowCount` → frequencies inside the current window
+
+Track:
+
+- `need` → number of unique required characters
+- `have` → number of required characters whose frequency is currently satisfied
+
+Example:
+
+    tCount:
+    A → 2
+    B → 1
+
+    windowCount:
+    A → 3
+    B → 1
+
+    have = 2
+    need = 2
+
+The window is valid because every required character has at least its required frequency.
+
+### Maintaining `have`
+
+When adding a character:
+
+    if (windowCount.get(ch) === tCount.get(ch)) {
+        have++;
+    }
+
+When removing a character:
+
+    if (windowCount.get(ch) < tCount.get(ch)) {
+        have--;
+    }
+
+Only decrement `have` when removing a character causes its frequency to fall **below** the required frequency.
+
+### Minimum Window Variation
+
+For longest-window problems:
+
+> Expand until the window becomes invalid.
+
+For minimum-window problems:
+
+> Expand until the window becomes valid, then shrink from the left while it remains valid.
+
+This allows us to find the smallest valid window.
+
+---
+
 ## Common Data Structures
 
 The data structure depends on the condition being maintained:
