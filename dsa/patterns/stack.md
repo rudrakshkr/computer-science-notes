@@ -130,6 +130,63 @@ The exact condition depends on the problem.
 
 ---
 
+## Maintaining Auxiliary State ⭐
+
+Sometimes the Stack needs to store **more information than just the original value**.
+
+Instead of:
+
+```js
+stack.push(val)
+```
+
+we can store an object:
+
+```js
+stack.push({
+    val: val,
+    min: newMin
+})
+```
+
+This allows every Stack element to remember some useful information about the Stack **up to that point**.
+
+For example:
+
+```text
+push(5)
+
+{ val: 5, min: 5 }
+
+push(3)
+
+{ val: 3, min: 3 }
+
+push(7)
+
+{ val: 7, min: 3 }
+
+push(2)
+
+{ val: 2, min: 2 }
+```
+
+Now the top element contains the current minimum.
+
+### Key Idea
+
+> **Store information alongside each element so that future operations can be performed in O(1).**
+
+This is useful when a problem asks for information about the current Stack state, such as:
+
+- Minimum
+- Maximum
+- Previous state
+- Running information
+- Other values that would otherwise require scanning the Stack
+
+---
+
 ## Complexity
 
 For a Stack implemented using a JavaScript array:
@@ -147,6 +204,8 @@ Time:  O(n)
 Space: O(n)
 ```
 
+---
+
 ## Key Insight
 
 If something must be processed in **reverse order of insertion**, think:
@@ -157,4 +216,12 @@ Last In
 First Out
    ↓
 STACK
+```
+
+If the problem also asks for some information about the current Stack state, consider:
+
+```text
+Stack element
+      ↓
+value + auxiliary information
 ```
