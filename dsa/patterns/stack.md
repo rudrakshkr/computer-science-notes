@@ -130,6 +130,58 @@ The exact condition depends on the problem.
 
 ---
 
+---
+
+## Monotonic Stack ⭐
+
+A **Monotonic Stack** is a Stack kept in a specific order, usually:
+
+- **Monotonically increasing**
+- **Monotonically decreasing**
+
+It is useful for problems involving:
+
+- Next greater element
+- Next smaller element
+- Previous greater element
+- Previous smaller element
+- Finding how long until a larger/smaller value appears
+
+### Key Recognition Question ⭐
+
+Ask:
+
+> **For each element, do I need to find the next/previous element that is greater or smaller?**
+
+If yes, consider a **Monotonic Stack**.
+
+---
+
+## Daily Temperatures Pattern
+
+For each temperature, we need to find the **next warmer temperature**.
+
+Instead of checking every future day with a nested loop, keep indices of days that are still **waiting for a warmer temperature**.
+
+```js
+const stack = []
+const answer = new Array(temperatures.length).fill(0)
+
+for (let i = 0; i < temperatures.length; i++) {
+
+    while (
+        stack.length > 0 &&
+        temperatures[i] > temperatures[stack.at(-1)]
+    ) {
+        const prev = stack.pop()
+        answer[prev] = i - prev
+    }
+
+    stack.push(i)
+}
+
+---
+
 ## Maintaining Auxiliary State ⭐
 
 Sometimes the Stack needs to store **more information than just the original value**.
