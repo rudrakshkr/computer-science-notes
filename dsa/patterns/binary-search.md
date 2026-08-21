@@ -58,6 +58,32 @@ Because the array is sorted:
 
 ---
 
+## Search Insert Position
+
+When the target is not found, the search eventually ends with:
+
+`left > right`
+
+At that point, `left` is the correct index where the target should be inserted to keep the array sorted.
+
+### Key Insight
+
+> `left` represents the first position where the target could be placed.
+
+For example:
+
+`nums = [1, 3, 5, 6]`
+
+`target = 2`
+
+The search ends with:
+
+`left = 1`
+
+So the insertion position is `1`.
+
+---
+
 ## Complexity
 
 Time: `O(log n)`
