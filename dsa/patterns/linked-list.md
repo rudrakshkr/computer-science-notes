@@ -90,6 +90,47 @@ must happen before modifying `current.next`.
 
 ---
 
+## Slow/Fast Pointer Technique
+
+Use two pointers moving through the linked list at different speeds.
+
+- `slow` → moves 1 node at a time
+- `fast` → moves 2 nodes at a time
+
+This is useful for:
+
+- Detecting cycles
+- Finding the middle of a linked list
+- Other problems involving relative pointer movement
+
+### Cycle Detection
+
+If the list contains a cycle:
+
+`slow === fast`
+
+because the faster pointer will eventually catch the slower pointer.
+
+If no cycle exists:
+
+`fast` eventually reaches `null`.
+
+### Important Detail
+
+Compare **node references**, not node values.
+
+Use:
+
+`slow === fast`
+
+not:
+
+`slow.val === fast.val`
+
+Two different nodes can contain the same value.
+
+---
+
 ## Complexity
 
 For a single traversal through `n` nodes:
