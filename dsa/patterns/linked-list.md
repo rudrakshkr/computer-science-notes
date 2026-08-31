@@ -131,6 +131,48 @@ Two different nodes can contain the same value.
 
 ---
 
+## Dummy Node Technique
+
+A **dummy node** is a temporary node placed before the head of the linked list.
+
+Conceptually:
+
+`dummy → head → ...`
+
+It simplifies pointer manipulation, especially when the operation may modify or remove the **head node**.
+
+### Common Uses
+
+- Removing the head node
+- Removing a node near the head
+- Building a new linked list
+- Simplifying edge cases involving the first node
+
+At the end, the actual head is usually:
+
+`dummy.next`
+
+---
+
+## Two-Pointer Gap Technique
+
+Maintain two pointers with a fixed distance between them.
+
+This is useful when a problem asks about a node relative to the **end** of the list.
+
+For example, to find the nth node from the end:
+
+1. Place `slow` and `fast` at the dummy node.
+2. Move `fast` ahead by `n + 1` nodes.
+3. Move both pointers together.
+4. When `fast === null`, `slow` is positioned immediately before the nth node from the end.
+
+### Key Insight
+
+> Maintain a fixed gap between two pointers so that reaching the end with one pointer gives useful positional information about the other.
+
+---
+
 ## Complexity
 
 For a single traversal through `n` nodes:
