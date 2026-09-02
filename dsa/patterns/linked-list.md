@@ -167,9 +167,36 @@ For example, to find the nth node from the end:
 3. Move both pointers together.
 4. When `fast === null`, `slow` is positioned immediately before the nth node from the end.
 
+---
+
+## Combining Linked List Techniques
+
+Some linked list problems require combining multiple pointer techniques rather than using just one.
+
+A common sequence is:
+
+```text
+Find middle
+    ↓
+Split the list
+    ↓
+Reverse part of the list
+    ↓
+Merge or reconnect the parts
+```
+
+For example, **Reorder List** combines:
+
+- Slow/Fast pointers → find the middle
+- Pointer manipulation → split the list
+- `prev / current / next` → reverse the second half
+- Multiple pointers → merge the two halves alternately
+
 ### Key Insight
 
 > Maintain a fixed gap between two pointers so that reaching the end with one pointer gives useful positional information about the other.
+
+> Linked list problems often become easier when you break the required transformation into smaller pointer-manipulation operations and solve each operation separately.
 
 ---
 
