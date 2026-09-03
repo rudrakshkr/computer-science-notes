@@ -70,6 +70,61 @@ Each pointer represents a different position or piece of information during trav
 
 ---
 
+## HashMap Mapping Technique
+
+Some linked list problems require creating new nodes while preserving relationships between the original nodes.
+
+Use a `Map` to maintain:
+
+```text
+original node → copied node
+```
+
+This is useful when a node contains pointers that can reference arbitrary nodes, such as a `random` pointer.
+
+Example:
+
+```text
+Original:
+A → B → C
+
+Copies:
+X → Y → Z
+
+Map:
+A → X
+B → Y
+C → Z
+```
+
+The map lets us find the copied version of any original node.
+
+For example, if:
+
+```text
+A.random → C
+```
+
+then:
+
+```js
+map.get(A.random)
+```
+
+returns the copy of `C`.
+
+**Key Insight**
+
+> A `Set` can tell you whether a node has been seen, but a `Map` lets you associate each original node with its corresponding copied node.
+
+A common approach is:
+
+1. Create a copy of every original node and store the mapping.
+2. Traverse the original list again.
+3. Use the mapping to connect the copied nodes' pointers.
+
+---
+
 ## Why Multiple Pointers Matter
 
 Suppose:
