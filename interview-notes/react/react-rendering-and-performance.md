@@ -196,8 +196,7 @@ Example:
     Bob     → key 1
     Charlie → key 2
 
-After removing Bob:
-
+    After removing Bob:
     Alice   → key 0
     Charlie → key 1
 
@@ -582,9 +581,344 @@ The `<p>` does not need to be recreated.
 
 ---
 
-## Interview Recognition
+# Large List Performance
 
-### Rendering question
+## List Performance
+
+Large lists can become expensive when many items are rendered and updated.
+
+Example:
+
+    {items.map(item => (
+        <Item key={item.id} item={item} />
+    ))}
+
+If a parent re-renders, many list items may be considered again.
+
+A useful optimization is to memoize individual list items:
+
+    const Item = React.memo(function Item({ item }) {
+        return <div>{item.name}</div>;
+    });
+
+If an item's props have not changed, `React.memo` can allow React to skip rendering that item.
+
+### Important
+
+`useMemo` can memoize a calculated list of elements, but it does not itself prevent the child components from rendering.
+
+For large lists, `React.memo` is often more directly useful for preventing unnecessary item renders.
+
+---
+
+# List Virtualization
+
+## Definition
+
+**List virtualization** is a technique where only the items currently visible in the viewport are rendered instead of rendering the entire list.
+
+Example:
+
+    Without virtualization:
+    5,000 items
+        ↓
+    5,000 rendered items
+
+    With virtualization:
+    5,000 total items
+        ↓
+    Only visible items rendered
+
+As the user scrolls, the visible items are updated or reused.
+
+### Why It Helps
+
+Rendering fewer items reduces:
+
+- DOM nodes
+- Rendering work
+- Memory usage
+- Layout and update work
+
+Virtualization is especially useful for very large lists.
+
+### Key Takeaway
+
+> Render only the portion of a large list that the user currently needs to see.
+
+---
+
+# Lazy Loading & Code Splitting
+
+## Problem
+
+Suppose an application contains:
+
+    Home
+    Dashboard
+    AdminPanel
+    Settings
+
+If all page JavaScript is loaded upfront:
+
+    Initial load
+        ↓
+    Home.js
+    Dashboard.js
+    AdminPanel.js
+    Settings.js
+        ↓
+    All downloaded upfront
+
+This increases the amount of JavaScript the browser must download and execute during the initial load.
+
+---
+
+## Lazy Loading
+
+Lazy loading allows less frequently used components or routes to be loaded only when they are needed.
+
+Example:
+
+    const AdminPanel = lazy(() => import("./AdminPanel"));
+
+Conceptually:
+
+    Initial load
+        ↓
+    Home + required code
+
+    User navigates to AdminPanel
+        ↓
+    AdminPanel.js is loaded
+
+Lazy loading is commonly combined with **code splitting**, which separates application JavaScript into smaller chunks.
+
+### Key Takeaway
+
+> Load code when it is needed instead of forcing the browser to load every part of the application upfront.
+
+---
+
+# `React.lazy()`
+
+`React.lazy()` allows a component to be loaded dynamically.
+
+Example:
+
+    const AdminPanel = lazy(() => import("./AdminPanel"));
+
+The component's JavaScript can then be loaded when React needs to render it.
+
+`React.lazy()` handles the **on-demand loading of the component code**.
+
+---
+
+# `Suspense`
+
+`Suspense` provides fallback UI while suspended content is not ready.
+
+Example:
+
+    <Suspense fallback={<p>Loading...</p>}>
+        <AdminPanel />
+    </Suspense>
+
+Conceptually:
+
+    AdminPanel requested
+            ↓
+    JavaScript still loading
+            ↓
+    Suspense
+            ↓
+    fallback UI shown
+            ↓
+    JavaScript finishes loading
+            ↓
+    AdminPanel rendered
+
+The `fallback` is the UI shown while the lazy component is loading.
+
+### `React.lazy()` vs `Suspense`
+
+    React.lazy()
+    → loads component code on demand
+
+    Suspense
+    → provides fallback UI while the component is not ready
+
+### Interview Takeaway
+
+> `React.lazy()` handles the lazy loading of component code, while `Suspense` provides a fallback UI while that content is loading.
+
+---
+
+# `useTransition`
+
+`useTransition` is used to mark certain state updates as **non-urgent**.
+
+Example:
+
+    const [isPending, startTransition] = useTransition();
+
+Suppose a search input updates a very large list.
+
+The input update should remain urgent:
+
+    setInput(value);
+
+The expensive result update can be marked as a transition:
+
+    startTransition(() => {
+        setResults(filterLargeList(value));
+    });
+
+Conceptually:
+
+    User types
+        ↓
+    setInput(...)              ← urgent
+        ↓
+    Input remains responsive
+        ↓
+    startTransition(...)
+        ↓
+    setResults(...)             ← non-urgent
+
+React can prioritize the more urgent update while treating the transition update as lower priority.
+
+### Important
+
+`startTransition()` does **not** make the expensive calculation itself faster.
+
+It tells React that the resulting state update is **less urgent**.
+
+---
+
+## Why Not Put the Input Update in `startTransition()`?
+
+The input itself should respond immediately to user interaction.
+
+For example:
+
+    setInput(value);
+
+should remain an urgent update.
+
+The expensive derived UI can instead be updated inside:
+
+    startTransition(() => {
+        setResults(...);
+    });
+
+### Key Takeaway
+
+> Use transitions for non-urgent updates that can be deferred while keeping urgent user interactions responsive.
+
+---
+
+## `isPending`
+
+`isPending` is a boolean that indicates that a transition update is still pending.
+
+Example:
+
+    const [isPending, startTransition] = useTransition();
+
+It can be used to provide feedback:
+
+    {isPending && <p>Updating...</p>}
+
+Conceptually:
+
+    startTransition(...)
+          ↓
+    Transition begins
+          ↓
+    isPending = true
+          ↓
+    Show pending UI
+          ↓
+    Transition finishes
+          ↓
+    isPending = false
+
+`isPending` indicates that the transition update is still pending; it does not specifically mean that a particular calculation is currently executing.
+
+---
+
+# `useDeferredValue`
+
+`useDeferredValue` lets a less-urgent part of the UI use a version of a value that may temporarily lag behind the latest value.
+
+Example:
+
+    const [query, setQuery] = useState("");
+
+    const deferredQuery = useDeferredValue(query);
+
+The input can use the current value:
+
+    <input value={query} />
+
+while a large component uses the deferred value:
+
+    <SearchResults query={deferredQuery} />
+
+Conceptually:
+
+    query
+      ↓
+    updates immediately
+
+    deferredQuery
+      ↓
+    can temporarily lag behind
+      ↓
+    large UI uses deferred value
+
+This allows urgent UI, such as typing into an input, to remain responsive while less-urgent UI catches up.
+
+---
+
+## `useTransition` vs `useDeferredValue`
+
+The key distinction:
+
+    useTransition
+    → marks an UPDATE as non-urgent
+
+    useDeferredValue
+    → lets a VALUE lag behind
+
+### `useTransition` Example
+
+    startTransition(() => {
+        setResults(results);
+    });
+
+We explicitly tell React:
+
+> This state update is non-urgent.
+
+### `useDeferredValue` Example
+
+    const deferredQuery = useDeferredValue(query);
+
+We tell React:
+
+> This UI can use a deferred version of this value.
+
+### Interview Takeaway
+
+> `useTransition` is used to mark state updates as non-urgent, while `useDeferredValue` allows a value used by less-urgent UI to temporarily lag behind the latest value.
+
+---
+
+# Performance Recognition
+
+## Rendering Question
 
 Ask:
 
@@ -597,7 +931,9 @@ Think about:
 - Parent render
 - Context
 
-### Reconciliation question
+---
+
+## Reconciliation Question
 
 Ask:
 
@@ -607,7 +943,9 @@ No.
 
 React reconciles the new element tree with the previous one and commits only the necessary changes.
 
-### Keys question
+---
+
+## Keys Question
 
 Ask:
 
@@ -617,7 +955,9 @@ Think:
 
     Stable identity across renders
 
-### Performance question
+---
+
+## Performance Question
 
 Ask:
 
@@ -633,7 +973,22 @@ Check whether:
 
 ---
 
-## Interview Takeaways
+## Large List Question
+
+Ask:
+
+> How would you optimize a very large list?
+
+Think about:
+
+- `React.memo` for individual items when appropriate.
+- List virtualization for very large lists.
+- Avoiding unnecessary object/array/function reference changes.
+- Avoiding unnecessary calculations.
+
+---
+
+# Interview Takeaways
 
 - Rendering calculates what the UI should look like.
 - The commit phase applies necessary changes to the actual DOM.
@@ -651,3 +1006,13 @@ Check whether:
 - `useCallback` memoizes a function reference.
 - `React.memo` + stable references can prevent unnecessary child renders.
 - Memoization should be used selectively rather than everywhere.
+- Large lists can benefit from memoized list items.
+- List virtualization renders only the visible portion of a large list.
+- Lazy loading and code splitting reduce the JavaScript needed for the initial load.
+- `React.lazy()` loads component code on demand.
+- `Suspense` provides fallback UI while suspended content is not ready.
+- `useTransition` marks state updates as non-urgent.
+- `isPending` indicates that a transition update is still pending.
+- `useDeferredValue` allows a less-urgent UI to use a value that can temporarily lag behind.
+- `useTransition` controls the priority of an update.
+- `useDeferredValue` defers a value used by less-urgent UI.
