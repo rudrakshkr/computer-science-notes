@@ -213,6 +213,8 @@ At the end, the actual head is usually:
 
 Maintain two pointers with a fixed distance between them.
 
+Maintain a fixed gap between two pointers so that reaching the end with one pointer gives useful positional information about the other.
+
 This is useful when a problem asks about a node relative to the **end** of the list.
 
 For example, to find the nth node from the end:
@@ -221,6 +223,48 @@ For example, to find the nth node from the end:
 2. Move `fast` ahead by `n + 1` nodes.
 3. Move both pointers together.
 4. When `fast === null`, `slow` is positioned immediately before the nth node from the end.
+
+---
+
+## Two-Pointer Switching Technique
+
+When finding the intersection of two linked lists with different lengths, two pointers can traverse both lists to automatically align themselves.
+
+Start:
+
+```js
+let pA = headA;
+let pB = headB;
+```
+
+When a pointer reaches the end of its list, move it to the head of the **other** list.
+
+```js
+while (pA !== pB) {
+    pA = pA === null ? headB : pA.next;
+    pB = pB === null ? headA : pB.next;
+}
+```
+
+Conceptually:
+
+```text
+pA: List A → List B
+
+pB: List B → List A
+```
+
+Each pointer therefore travels:
+
+```text
+lengthA + lengthB
+```
+
+This cancels out the difference in the original list lengths.
+
+If the lists intersect, the pointers meet at the shared node.
+
+If they do not intersect, both eventually become `null`.
 
 ---
 
@@ -248,8 +292,6 @@ For example, **Reorder List** combines:
 - Multiple pointers → merge the two halves alternately
 
 ### Key Insight
-
-> Maintain a fixed gap between two pointers so that reaching the end with one pointer gives useful positional information about the other.
 
 > Linked list problems often become easier when you break the required transformation into smaller pointer-manipulation operations and solve each operation separately.
 
