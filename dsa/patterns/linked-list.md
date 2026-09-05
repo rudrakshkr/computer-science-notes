@@ -209,6 +209,27 @@ At the end, the actual head is usually:
 
 ---
 
+**### Sentinel/Dummy Nodes for Doubly Linked Lists**
+
+For a doubly linked list, dummy nodes can be placed at **both ends**:
+
+`LEFT ⇄ ... ⇄ RIGHT`
+
+This removes special cases when adding or removing nodes at the beginning or end.
+
+- `LEFT.next` → first real node
+- `RIGHT.prev` → last real node
+
+This is especially useful for problems where nodes are frequently removed and reinserted, such as **LRU Cache**.
+
+Because every real node has both a `prev` and `next`, the same pointer manipulation works for any node:
+
+`node.prev.next = node.next`
+
+`node.next.prev = node.prev`
+
+---
+
 ## Two-Pointer Gap Technique
 
 Maintain two pointers with a fixed distance between them.
