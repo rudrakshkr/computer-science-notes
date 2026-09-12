@@ -139,6 +139,103 @@ The parent uses the values returned by its children.
 
 ---
 
+## Tree Comparison / Matching
+
+Some tree problems require comparing two trees **node by node at corresponding positions**.
+
+For each pair of nodes:
+
+1. Both are `null` → match.
+2. Only one is `null` → mismatch.
+3. Values differ → mismatch.
+4. Otherwise, recursively compare both left and right subtrees.
+
+Both subtree comparisons must be valid.
+
+This pattern is used in:
+
+- Same Tree
+- Subtree of Another Tree
+
+**Key Insight**
+
+> Many tree comparison problems can be solved by recursively asking whether the corresponding subtrees satisfy the same condition.
+
+---
+
+## Bottom-Up Recursive Aggregation
+
+Some tree problems require information from a node's children before the parent can be solved.
+
+The recursion therefore works **bottom-up**:
+
+```text
+Left subtree
+      ↓
+Right subtree
+      ↓
+Current node
+      ↓
+Return information to parent
+```
+
+Examples:
+
+- Maximum Depth → children return subtree heights.
+- Balanced Binary Tree → children return heights while also detecting imbalance.
+
+### Sentinel Value Technique
+
+A recursive helper can return a special value to signal an invalid subtree.
+
+For example:
+
+```text
+positive value → valid subtree + useful information
+-1             → subtree is invalid
+```
+
+In **Balanced Binary Tree**, `-1` means the subtree is unbalanced.
+
+**Key Insight**
+
+> A recursive function can return both useful information and a special signal indicating that the subtree has already failed a condition.
+
+---
+
+## Constraint / Range Propagation
+
+Some tree problems require a node to satisfy constraints imposed by **multiple ancestors**, not just its parent.
+
+Pass the valid range down through the recursion:
+
+```text
+Root:
+(-∞, +∞)
+
+Left child:
+(-∞, root.val)
+
+Right child:
+(root.val, +∞)
+```
+
+As recursion moves deeper, the valid range becomes narrower.
+
+This is used in:
+
+- Validate Binary Search Tree
+
+For each node:
+
+`leftBound < node.val < rightBound`
+
+### Key Insight
+
+> When a node's validity depends on its position in the entire tree, carry the relevant constraints down through the recursive calls.
+
+---
+
 # BFS — Breadth-First Search
 
 BFS explores the tree **level by level**.
